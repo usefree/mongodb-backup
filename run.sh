@@ -17,8 +17,8 @@ HTTP_AUTH="-u ${HTTP_USER}:${HTTP_PASS}"
 
 [[ ( -n "${MONGODB_USER}" ) ]] && USER_STR=" --username ${MONGODB_USER}"
 [[ ( -n "${MONGODB_PASS}" ) ]] && PASS_STR=" --password ${MONGODB_PASS}"
-[[ ( -n "${MONGODB_DB}" ) ]] && USER_STR=" --db ${MONGODB_DB}"
-[[ ( -n "${MONGODB_DB_SUFFIX}" ) ]] && USER_STR=" --db ${MONGODB_DB}${MONGODB_DB_SUFFIX}"
+[[ ( -n "${MONGODB_DB}" ) ]] && DB_STR=" --db ${MONGODB_DB}"
+[[ ( -n "${MONGODB_DB_SUFFIX}" ) ]] && EXTRA_OPTS_RESTORE=" --nsFrom ${MONGODB_DB}.* --nsTo ${MONGODB_DB}${MONGODB_DB_SUFFIX}.*"
 
 
 BACKUP_CMD="mongodump --gzip --archive=/backup/"'${BACKUP_NAME}'" --host=${MONGODB_HOST} --port=${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} ${EXTRA_OPTS}"
