@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:edge
 
 RUN apk add --no-cache bash curl wget mongodb-tools && \
     mkdir /backup
