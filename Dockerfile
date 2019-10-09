@@ -1,9 +1,10 @@
 FROM alpine:3.9.3
 
-RUN apk add --no-cache bash curl wget mongodb-tools && \
-    mkdir /backup
-
-ENV CRON_TIME="0 0 * * *"
+RUN apk --update add --no-cache python py-pip groff bash curl wget mongodb-tools && \
+    mkdir /backup && \
+    pip install --upgrade awscli && \
+    apk -v --purge del py-pip && \
+    rm /var/cache/apk/*
 
 ADD run.sh /run.sh
 VOLUME ["/backup"]
