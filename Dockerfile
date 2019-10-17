@@ -1,6 +1,6 @@
 FROM alpine:3.9.3
 
-RUN apk --update add --no-cache python py-pip groff bash curl wget mongodb-tools && \
+RUN apk --update add --no-cache mongodb python py-pip groff bash curl wget jq mongodb-tools && \
     mkdir /backup && \
     pip install --upgrade awscli && \
     apk -v --purge del py-pip
