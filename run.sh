@@ -32,7 +32,7 @@ for DB in ${DB_LIST}; do
     [[ ( -n "${MONGODB_DB_SUFFIX}" ) ]] && EXTRA_OPTS_RESTORE=" --nsFrom ${DB}.* --nsTo ${DB}${MONGODB_DB_SUFFIX}.*"
 
     BACKUP_CMD="mongodump --gzip --archive=/backup/"'${BACKUP_NAME}'" --host=${MONGODB_HOST} --port=${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} ${EXTRA_OPTS}"
-    UPLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp  /backup/"'${BACKUP_PATH}'"  s3://$AWS_BUCKET/$DB_NAME$BACKUP_PATH "
+    UPLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp  /backup/"'${BACKUP_PATH}'"  s3://$AWS_BUCKET/"'${DB_NAME}'"/"'${BACKUP_PATH}'" "
     DOWNLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp s3://$AWS_BUCKET/$DB_NAME/${DB_NAME}-latest.gz ./${DB_NAME}-latest.gz"
     CREATE_BUCKET_CMD="aws --endpoint-url $AWS_ENDPOINT_URL s3 mb s3://$AWS_BUCKET"
 
