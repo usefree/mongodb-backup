@@ -33,7 +33,7 @@ for DB in ${DB_LIST}; do
 
     BACKUP_CMD="mongodump --gzip --archive=/backup/"'${BACKUP_NAME}'" --host=${MONGODB_HOST} --port=${MONGODB_PORT} ${USER_STR}${PASS_STR}${DB_STR} ${EXTRA_OPTS}"
     UPLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp  /backup/"'${BACKUP_PATH}'"  s3://$AWS_BUCKET/ "
-    DOWNLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp s3://$AWS_BUCKET/mongodump-latest.gz ./mongodump-latest.gz"
+    DOWNLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp s3://$AWS_BUCKET/${DB_NAME}-latest.gz ./${DB_NAME}-latest.gz"
     CREATE_BUCKET_CMD="aws --endpoint-url $AWS_ENDPOINT_URL s3 mb s3://$AWS_BUCKET"
 
     echo "=> Creating backup script for ${DB}"
@@ -41,7 +41,7 @@ for DB in ${DB_LIST}; do
     cat <<EOF >> /backup.sh
 #!/bin/bash
 DB_NAME=`echo ${DB} | awk '{print tolower($0)}'`
-BACKUP_NAME=\${DB_NAME}-$(date +\%Y.\%m.\%d).gz
+BACKUP_NAME=\${DB_NAME}-$(date +%Y\%m\%d\%H\%M).gz
 BACKUP_PATH=\${BACKUP_NAME}
 
 function UPLOAD {
