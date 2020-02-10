@@ -9,6 +9,7 @@ AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_KEY:-${MINIO_SECRET_KEY}}
 AWS_ENDPOINT_URL=${AWS_ENDPOINT:-${MINIO_ENDPOINT_URL}}
 AWS_DEFAULT_REGION="${AWS_REGION:-us-east-1}"
 AWS_BUCKET=${AWS_BUCKET:-${MINIO_BUCKET}}
+MINIO_PATH="mongobackup"
 
 [[ ( -z "${MONGODB_USER}" ) && ( -n "${MONGODB_PASS}" ) ]] && MONGODB_USER='admin'
 
@@ -16,6 +17,7 @@ aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
 aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
 aws configure set default.region ${AWS_DEFAULT_REGION}
 aws configure set default.s3.signature_version s3v4
+./mc config host add $MINIO_PATH ${MINIO_ENDPOINT_URL} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY} --api S3v4
 
 [[ ( -n "${MONGODB_USER}" ) ]] && USER_STR=" --username=${MONGODB_USER}"
 [[ ( -n "${MONGODB_PASS}" ) ]] && PASS_STR=" --password=${MONGODB_PASS}"
@@ -35,6 +37,8 @@ for DB in ${DB_LIST}; do
     UPLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp  /backup/"'${BACKUP_PATH}'"  s3://$AWS_BUCKET/"'${DB_NAME}'"/"'${BACKUP_PATH}'" "
     DOWNLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp s3://$AWS_BUCKET/$DB_NAME/${DB_NAME}-latest.gz ./${DB_NAME}-latest.gz"
     CREATE_BUCKET_CMD="aws --endpoint-url $AWS_ENDPOINT_URL s3 mb s3://$AWS_BUCKET"
+#    ROTATE_CMD="./mc rm --recursive --force --older-than 5h $MINIO_PATH/$AWS_BUCKET/$DB_NAME/"
+    ROTATE_CMD="./mc ls $MINIO_PATH/$AWS_BUCKET/$DB_NAME/"
 
     echo "=> Creating backup script for ${DB}"
     rm -f /backup.sh
@@ -56,9 +60,10 @@ echo "=> Backup started"
 if ${BACKUP_CMD} ;then
     echo "   Backup succeeded"
     ${CREATE_BUCKET_CMD} && UPLOAD || UPLOAD
-    BACKUP_PATH=\${DB_NAME}-latest.gz
-    mv /backup/\${BACKUP_NAME} /backup/\${BACKUP_PATH}
-    UPLOAD
+    ${ROTATE_CMD}
+#    BACKUP_PATH=\${DB_NAME}-latest.gz
+#    mv /backup/\${BACKUP_NAME} /backup/\${BACKUP_PATH}
+#    UPLOAD
 else
     echo "   Backup failed"
     rm -rf /backup/\${BACKUP_NAME}
