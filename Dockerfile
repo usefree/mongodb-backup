@@ -4,7 +4,8 @@ RUN apk --update add --no-cache mongodb python py-pip groff bash curl wget jq mo
     mkdir /backup && \
     pip install --upgrade awscli && \
     apk -v --purge del py-pip && \
-    wget https://dl.min.io/client/mc/release/linux-amd64/mc
+    wget https://dl.min.io/client/mc/release/linux-amd64/mc && \
+    chmod +x ./mc
 
 ADD run.sh /run.sh
 VOLUME ["/backup"]
