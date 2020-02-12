@@ -10,7 +10,7 @@ AWS_ENDPOINT_URL=${AWS_ENDPOINT:-${MINIO_ENDPOINT_URL}}
 AWS_DEFAULT_REGION="${AWS_REGION:-us-east-1}"
 AWS_BUCKET=${AWS_BUCKET:-${MINIO_BUCKET}}
 MINIO_PATH="mongobackup"
-BACKUP_AMOUNT=5
+DESIRED_BACKUP_AMOUNT=5
 
 [[ ( -z "${MONGODB_USER}" ) && ( -n "${MONGODB_PASS}" ) ]] && MONGODB_USER='admin'
 
@@ -65,7 +65,8 @@ if ${BACKUP_CMD} ;then
     echo "minio path: $MINIO_PATH"
     echo "${ROTATE_CMD}"
     ${LS_CMD}
-    if $(${LS_CMD} | wc -l) > $BACKUP_AMOUNT; then
+    CURRENT_BACKUPS_AMOUNT=$(${LS_CMD}| wc -l)
+    if $CURRENT_BACKUPS_AMOUNT > $DESIRED_BACKUP_AMOUNT; then
         ${ROTATE_CMD}
     fi
     echo "   <---rotate"
