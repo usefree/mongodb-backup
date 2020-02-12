@@ -37,8 +37,8 @@ for DB in ${DB_LIST}; do
     UPLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp  /backup/"'${BACKUP_PATH}'"  s3://$AWS_BUCKET/"'${DB_NAME}'"/"'${BACKUP_PATH}'" "
     DOWNLOAD_CMD="aws --endpoint-url $AWS_ENDPOINT_URL  s3 cp s3://$AWS_BUCKET/$DB_NAME/${DB_NAME}-latest.gz ./${DB_NAME}-latest.gz"
     CREATE_BUCKET_CMD="aws --endpoint-url $AWS_ENDPOINT_URL s3 mb s3://$AWS_BUCKET"
-#    ROTATE_CMD="./mc rm --recursive --force --older-than 5h $MINIO_PATH/$AWS_BUCKET/$DB_NAME/"
-    ROTATE_CMD="./mc ls $MINIO_PATH/$AWS_BUCKET/$DB_NAME/"
+    ROTATE_CMD="./mc rm --recursive --force --older-than 5h $MINIO_PATH/$AWS_BUCKET/"'${DB_NAME}'"/"
+    LS_CMD="./mc ls $MINIO_PATH/$AWS_BUCKET/"'${DB_NAME}'"/"
 
     echo "=> Creating backup script for ${DB}"
     rm -f /backup.sh
@@ -60,7 +60,12 @@ echo "=> Backup started"
 if ${BACKUP_CMD} ;then
     echo "   Backup succeeded"
     ${CREATE_BUCKET_CMD} && UPLOAD || UPLOAD
+    echo "   rotate--->"
+    echo "minio path: $MINIO_PATH"
+    echo "${ROTATE_CMD}"
+    ${LS_CMD}
     ${ROTATE_CMD}
+    echo "   <---rotate"
 #    BACKUP_PATH=\${DB_NAME}-latest.gz
 #    mv /backup/\${BACKUP_NAME} /backup/\${BACKUP_PATH}
 #    UPLOAD
