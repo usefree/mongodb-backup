@@ -40,6 +40,7 @@ for DB in ${DB_LIST}; do
     CREATE_BUCKET_CMD="aws --endpoint-url $AWS_ENDPOINT_URL s3 mb s3://$AWS_BUCKET"
     ROTATE_CMD="./mc rm --recursive --force --older-than 5h $MINIO_PATH/$AWS_BUCKET/"'${DB_NAME}'"/"
     LS_CMD="./mc ls $MINIO_PATH/$AWS_BUCKET/"'${DB_NAME}'"/"
+    LS_CMD_WC="./mc ls $MINIO_PATH/$AWS_BUCKET/"'${DB_NAME}'"/ | wc -l"
 
     echo "=> Creating backup script for ${DB}"
     rm -f /backup.sh
@@ -64,7 +65,13 @@ if ${BACKUP_CMD} ;then
     echo "   rotate--->"
     echo "minio path: $MINIO_PATH"
     echo "${ROTATE_CMD}"
+    echo "ls: ---"
+    echo "${LS_CMD}"
     ${LS_CMD}
+    echo "ls_wc: ---"
+    echo "${LS_CMD_WC}"
+    ${LS_CMD_WC}
+    CURRENT_BACKUPS_AMOUNT=\${LS_CMD_WC}
     CURRENT_BACKUPS_AMOUNT=$(${LS_CMD}| wc -l)
     if $CURRENT_BACKUPS_AMOUNT > $DESIRED_BACKUP_AMOUNT; then
         ${ROTATE_CMD}
